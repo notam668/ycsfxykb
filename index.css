@@ -108,13 +108,10 @@ body {
   width: 36px;
   height: 36px;
   border-radius: 10px;
-  background: var(--primary-gradient);
-  color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 800;
-  font-size: 18px;
+  object-fit: cover;
   box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
 }
 
