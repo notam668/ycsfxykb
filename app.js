@@ -17,15 +17,14 @@
   };
 
   function getCalculatedAcademicWeek() {
-    return 4; // Default sensible academic week
+    return 1; // Default to 1st week
   }
 
   let state = {
     currentMajor: null,
     currentClass: null,
     currentWeek: getCalculatedAcademicWeek(),
-    viewMode: 'weekly', // 'weekly' or 'total'
-    theme: localStorage.getItem('ys_theme') || 'light'
+    viewMode: 'weekly' // 'weekly' or 'total'
   };
 
   // Hash function to assign consistent palette themes to courses
@@ -42,8 +41,6 @@
   // DOM Elements Cache
   const elements = {
     body: document.body,
-    themeToggleBtn: document.getElementById('themeToggleBtn'),
-    searchBtn: document.getElementById('searchBtn'),
     
     currentMajorName: document.getElementById('currentMajorName'),
     currentClassName: document.getElementById('currentClassName'),
@@ -52,7 +49,6 @@
 
     tabWeekly: document.getElementById('tabWeekly'),
     tabTotal: document.getElementById('tabTotal'),
-    currentWeekBtn: document.getElementById('currentWeekBtn'),
     weekScrollerWrap: document.getElementById('weekScrollerWrap'),
     weekScrollList: document.getElementById('weekScrollList'),
 
@@ -60,7 +56,7 @@
     otherCoursesSection: document.getElementById('otherCoursesSection'),
     otherCoursesList: document.getElementById('otherCoursesList'),
 
-    // Drawers & Search Popover
+    // Drawers
     majorDrawer: document.getElementById('majorDrawer'),
     majorSearchInput: document.getElementById('majorSearchInput'),
     majorPickerList: document.getElementById('majorPickerList'),
@@ -68,12 +64,6 @@
     classDrawer: document.getElementById('classDrawer'),
     classDrawerTitle: document.getElementById('classDrawerTitle'),
     classPickerList: document.getElementById('classPickerList'),
-
-    searchPopover: document.getElementById('searchPopover'),
-    searchBackdrop: document.getElementById('searchBackdrop'),
-    globalSearchInput: document.getElementById('globalSearchInput'),
-    searchClearBtn: document.getElementById('searchClearBtn'),
-    searchResultsList: document.getElementById('searchResultsList'),
 
     detailDrawer: document.getElementById('detailDrawer'),
     detailCourseName: document.getElementById('detailCourseName'),
@@ -91,23 +81,11 @@
 
   // Initialize App
   function init() {
-    setupTheme();
     setupInitialData();
     renderWeekSelectorChips();
     bindEvents();
     updateViewModeUI();
     renderTimetable();
-  }
-
-  // Theme Setup
-  function setupTheme() {
-    if (state.theme === 'dark') {
-      elements.body.setAttribute('data-theme', 'dark');
-      elements.themeToggleBtn.textContent = '☀️';
-    } else {
-      elements.body.removeAttribute('data-theme');
-      elements.themeToggleBtn.textContent = '🌙';
-    }
   }
 
   // Load Default Major/Class
@@ -225,6 +203,9 @@
         
         // In Total mode, all courses are active and bright
         card.className = `course-card ${themeClass}`;
+        card.dataset.name = c.name;
+        card.dataset.day = c.day;
+        card.dataset.startSection = c.start_section;
 
         const startSec = Math.max(1, Math.min(12, c.start_section));
         const endSec = Math.max(startSec, Math.min(12, c.end_section));
@@ -266,6 +247,16 @@
     }
   }
 
+  // Toast Message Handler
+  function showToast(msg) {
+    if (!elements.toastMsg) return;
+    elements.toastMsg.textContent = msg;
+    elements.toastMsg.classList.add('show');
+    setTimeout(() => {
+      elements.toastMsg.classList.remove('show');
+    }, 2200);
+  }
+
   // Drawers Handlers
   function openDrawer(drawerEl) {
     drawerEl.classList.add('active');
@@ -273,96 +264,10 @@
 
   function closeAllDrawers() {
     document.querySelectorAll('.modal-overlay').forEach(el => el.classList.remove('active'));
-    closeSearchPopover();
-  }
-
-  // Top Search Popover Logic
-  function toggleSearchPopover() {
-    const isShowing = elements.searchPopover.classList.contains('active');
-    if (isShowing) {
-      closeSearchPopover();
-    } else {
-      openSearchPopover();
-    }
-  }
-
-  function openSearchPopover() {
-    elements.searchPopover.classList.add('active');
-    elements.searchBackdrop.classList.add('active');
-    elements.searchBtn.classList.add('active');
-    elements.globalSearchInput.value = '';
-    elements.searchClearBtn.style.display = 'none';
-    elements.searchResultsList.innerHTML = '<div style="text-align:center; padding:16px 10px; color:var(--text-muted); font-size:12px;">输入课程、教师或教室搜索全校课表</div>';
-    setTimeout(() => elements.globalSearchInput.focus(), 100);
-  }
-
-  function closeSearchPopover() {
-    elements.searchPopover.classList.remove('active');
-    elements.searchBackdrop.classList.remove('active');
-    elements.searchBtn.classList.remove('active');
-  }
-
-  function handleGlobalSearch(query) {
-    const q = query.trim().toLowerCase();
-    if (!q) {
-      elements.searchClearBtn.style.display = 'none';
-      elements.searchResultsList.innerHTML = '<div style="text-align:center; padding:16px 10px; color:var(--text-muted); font-size:12px;">输入课程、教师或教室搜索全校课表</div>';
-      return;
-    }
-
-    elements.searchClearBtn.style.display = 'flex';
-
-    const results = [];
-    data.forEach(m => {
-      m.classes.forEach(c => {
-        c.courses.forEach(crs => {
-          if (
-            crs.name.toLowerCase().includes(q) ||
-            crs.teacher.toLowerCase().includes(q) ||
-            crs.location.toLowerCase().includes(q) ||
-            crs.campus.toLowerCase().includes(q)
-          ) {
-            results.push({ major: m, classObj: c, course: crs });
-          }
-        });
-      });
-    });
-
-    if (results.length === 0) {
-      elements.searchResultsList.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-muted); font-size:13px;">未检索到匹配的课程/教师/教室</div>';
-      return;
-    }
-
-    elements.searchResultsList.innerHTML = '';
-    results.slice(0, 25).forEach(res => {
-      const item = document.createElement('div');
-      item.className = 'picker-item';
-      item.style.padding = '10px 12px';
-      item.innerHTML = `
-        <div>
-          <div class="picker-item-name" style="font-size:13px;">${res.course.name}</div>
-          <div class="picker-item-sub" style="font-size:11px;">教师: ${res.course.teacher || '未定'} | 场地: ${res.course.location || '未定'}</div>
-        </div>
-        <div style="text-align:right;">
-          <div style="font-size:11px; font-weight:600; color:var(--primary-color);">${res.classObj.class_name}</div>
-          <div class="picker-item-sub" style="font-size:10px;">${res.course.day_name} ${res.course.sections_raw}</div>
-        </div>
-      `;
-      item.addEventListener('click', () => {
-        state.currentMajor = res.major;
-        state.currentClass = res.classObj;
-        updateSelectorHeaderUI();
-        renderTimetable();
-        closeSearchPopover();
-        openCourseDetailDrawer(res.course);
-      });
-      elements.searchResultsList.appendChild(item);
-    });
   }
 
   // Open Major Picker Drawer
   function openMajorPicker() {
-    closeSearchPopover();
     renderMajorList(data);
     openDrawer(elements.majorDrawer);
     elements.majorSearchInput.value = '';
@@ -384,6 +289,7 @@
         updateSelectorHeaderUI();
         renderTimetable();
         closeAllDrawers();
+        showToast(`已切换至 ${m.major} (${m.classes[0].class_name})`);
       });
       elements.majorPickerList.appendChild(item);
     });
@@ -392,7 +298,6 @@
   // Open Class Picker Drawer
   function openClassPicker() {
     if (!state.currentMajor) return;
-    closeSearchPopover();
     elements.classDrawerTitle.textContent = `${state.currentMajor.major} - 选择班级`;
     elements.classPickerList.innerHTML = '';
 
@@ -408,6 +313,7 @@
         updateSelectorHeaderUI();
         renderTimetable();
         closeAllDrawers();
+        showToast(`已切换至 ${c.class_name}`);
       });
       elements.classPickerList.appendChild(item);
     });
@@ -438,26 +344,9 @@
 
   // Event Listeners Binding
   function bindEvents() {
-    // Theme toggle
-    elements.themeToggleBtn.addEventListener('click', () => {
-      state.theme = state.theme === 'light' ? 'dark' : 'light';
-      localStorage.setItem('ys_theme', state.theme);
-      setupTheme();
-    });
-
     // Triggers
     elements.majorTrigger.addEventListener('click', openMajorPicker);
     elements.classTrigger.addEventListener('click', openClassPicker);
-    
-    // Top Search Popover Trigger
-    elements.searchBtn.addEventListener('click', toggleSearchPopover);
-    elements.searchBackdrop.addEventListener('click', closeSearchPopover);
-    
-    elements.searchClearBtn.addEventListener('click', () => {
-      elements.globalSearchInput.value = '';
-      handleGlobalSearch('');
-      elements.globalSearchInput.focus();
-    });
 
     // View Mode Tabs Switch
     elements.tabWeekly.addEventListener('click', () => {
@@ -472,26 +361,16 @@
       renderTimetable();
     });
 
-    // "回到本周" button
-    elements.currentWeekBtn.addEventListener('click', () => {
-      state.currentWeek = getCalculatedAcademicWeek();
-      updateWeekChipsUI();
-      renderTimetable();
-    });
-
-    // Search Inputs
+    // Search Input inside Major Drawer
     elements.majorSearchInput.addEventListener('input', (e) => {
       const q = e.target.value.trim().toLowerCase();
       if (!q) {
         renderMajorList(data);
       } else {
-        const filtered = data.filter(m => m.major.toLowerCase().includes(q));
+        const cleanQ = q.replace(/\s+/g, '');
+        const filtered = data.filter(m => (m.major || '').toLowerCase().replace(/\s+/g, '').includes(cleanQ));
         renderMajorList(filtered);
       }
-    });
-
-    elements.globalSearchInput.addEventListener('input', (e) => {
-      handleGlobalSearch(e.target.value);
     });
 
     // Close Drawers

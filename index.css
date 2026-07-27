@@ -24,7 +24,7 @@
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
-  --radius-xl: 24px;
+  --radius-xl: 20px;
   
   --font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
   
@@ -166,7 +166,7 @@ body {
   border-color: var(--primary-color);
 }
 
-/* Top Search Popover (Anchored right below search icon, NO BLUR EFFECT) */
+/* Top Search Popover */
 .search-backdrop {
   position: fixed;
   inset: 0;
@@ -264,7 +264,7 @@ body {
   gap: 8px;
 }
 
-/* Query Selector Card (Aligned 100%) */
+/* Query Selector Card */
 .selector-card {
   margin: 12px 16px 6px;
   padding: 14px;
@@ -451,14 +451,6 @@ body {
   color: var(--text-muted);
 }
 
-.day-header-cell.today {
-  background: rgba(37, 99, 235, 0.1);
-  border-color: var(--primary-color);
-}
-.day-header-cell.today .day-name {
-  color: var(--primary-color);
-}
-
 /* Grid Layout */
 .timetable-grid {
   display: grid;
@@ -556,23 +548,6 @@ body {
   text-overflow: ellipsis;
 }
 
-.course-card.inactive {
-  opacity: 0.35;
-  filter: grayscale(80%);
-}
-
-.course-card.inactive::after {
-  content: "非本周";
-  position: absolute;
-  top: 2px;
-  right: 2px;
-  font-size: 8px;
-  background: rgba(0,0,0,0.3);
-  color: #fff;
-  padding: 1px 3px;
-  border-radius: 3px;
-}
-
 /* Palette variations */
 .c-theme-0 { background: #e0f2fe; color: #0369a1; border-color: #bae6fd; }
 .c-theme-1 { background: #fef3c7; color: #b45309; border-color: #fde68a; }
@@ -582,6 +557,35 @@ body {
 .c-theme-5 { background: #ffedd5; color: #c2410c; border-color: #fed7aa; }
 .c-theme-6 { background: #ccfbf1; color: #0f766e; border-color: #99f6e4; }
 .c-theme-7 { background: #fae8ff; color: #a21caf; border-color: #f5d0fe; }
+
+/* Jump Highlight Animation */
+@keyframes cardJumpPulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.7);
+  }
+  30% {
+    transform: scale(1.06);
+    box-shadow: 0 0 0 8px rgba(37, 99, 235, 0.4);
+    outline: 2px solid var(--primary-color);
+  }
+  60% {
+    transform: scale(1.03);
+    box-shadow: 0 0 0 14px rgba(37, 99, 235, 0);
+    outline: 2px solid var(--primary-color);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(37, 99, 235, 0);
+  }
+}
+
+.course-card.highlight-jump,
+.other-courses-card.highlight-jump {
+  animation: cardJumpPulse 1.2s ease-in-out 2;
+  z-index: 50 !important;
+  outline: 2px solid var(--primary-color);
+}
 
 [data-theme="dark"] .c-theme-0 { background: #075985; color: #e0f2fe; border-color: #0284c7; }
 [data-theme="dark"] .c-theme-1 { background: #78350f; color: #fef3c7; border-color: #d97706; }
@@ -621,15 +625,16 @@ body {
   border-bottom: none;
 }
 
-/* Modals & Drawers */
+/* Modals & Centered Dialogs (Identical for Major & Class Selection) */
 .modal-overlay {
   position: fixed;
   inset: 0;
   z-index: 200;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(0, 0, 0, 0.45);
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: center;
+  padding: 20px 16px;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.25s ease;
@@ -642,21 +647,22 @@ body {
 
 .drawer-content {
   width: 100%;
-  max-width: 480px;
-  max-height: 85vh;
+  max-width: 440px;
+  max-height: 80vh;
   background: var(--bg-surface);
-  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
-  padding: 20px 20px 30px;
-  box-shadow: var(--shadow-lg);
-  transform: translateY(100%);
-  transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+  border-radius: var(--radius-xl);
+  padding: 20px 20px 24px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.28);
+  border: 1px solid var(--border-color);
+  transform: scale(0.92) translateY(12px);
+  transition: transform 0.25s cubic-bezier(0.32, 0.72, 0, 1);
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
 
 .modal-overlay.active .drawer-content {
-  transform: translateY(0);
+  transform: scale(1) translateY(0);
 }
 
 .drawer-header {
@@ -667,7 +673,7 @@ body {
 }
 
 .drawer-title {
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 700;
   color: var(--text-main);
 }
@@ -711,7 +717,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  max-height: 50vh;
+  max-height: 55vh;
   overflow-y: auto;
 }
 

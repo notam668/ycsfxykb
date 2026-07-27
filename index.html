@@ -21,24 +21,7 @@
           <span class="brand-subtitle">盐城师范学院 · 2025-2026-1</span>
         </div>
       </div>
-      <div class="header-actions">
-        <button class="icon-btn" id="searchBtn" title="搜索课程/教师/教室">🔍</button>
-        <button class="icon-btn" id="themeToggleBtn" title="切换暗黑模式">🌙</button>
-      </div>
-
-      <!-- Top Search Popover (Anchored right below top-right search icon) -->
-      <div class="search-popover" id="searchPopover">
-        <div class="search-input-wrap">
-          <span class="search-input-icon">🔍</span>
-          <input type="text" class="search-popover-input" id="globalSearchInput" placeholder="输入课程、教师或教室名称搜索...">
-          <button class="search-clear-btn" id="searchClearBtn" style="display:none;">✕</button>
-        </div>
-        <div class="search-results-list" id="searchResultsList"></div>
-      </div>
     </header>
-
-    <!-- Search Overlay Backdrop -->
-    <div class="search-backdrop" id="searchBackdrop"></div>
 
     <!-- Query Selector Card (专业 -> 班级 100% 对齐) -->
     <section class="selector-card">
@@ -66,7 +49,6 @@
       </div>
 
       <div class="week-scroller-wrap" id="weekScrollerWrap">
-        <button class="current-week-btn" id="currentWeekBtn">回到本周</button>
         <div class="week-scroll-list" id="weekScrollList">
           <!-- 1-20周 chips will be rendered via JS -->
         </div>
