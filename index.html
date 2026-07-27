@@ -9,7 +9,7 @@
   <!-- Open Graph Tags for WeChat/Facebook/LinkedIn Sharing -->
   <meta property="og:title" content="师小联课表 - 盐城师范学院课表查询系统">
   <meta property="og:description" content="盐城师范学院全覆盖课表查询，支持专业-班级精准查询，每周课表与总课表智能切换">
-  <meta property="og:image" content="https://spontaneous-muffin-553478.netlify.app/share-card.png">
+  <meta property="og:image" content="https://spontaneous-muffin-553478.netlify.app/share-icon.jpg">
   <meta property="og:url" content="https://spontaneous-muffin-553478.netlify.app/">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="师小联课表">
@@ -17,13 +17,13 @@
   <!-- WeChat Specific Tags -->
   <meta name="wx:title" content="师小联课表 - 盐城师范学院课表查询系统">
   <meta name="wx:description" content="盐城师范学院全覆盖课表查询，支持专业-班级精准查询，每周课表与总课表智能切换">
-  <meta name="wx:image" content="https://spontaneous-muffin-553478.netlify.app/share-card.png">
+  <meta name="wx:image" content="https://spontaneous-muffin-553478.netlify.app/share-icon.jpg">
   
   <!-- Twitter Card Tags -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="师小联课表 - 盐城师范学院课表查询系统">
   <meta name="twitter:description" content="盐城师范学院全覆盖课表查询，支持专业-班级精准查询">
-  <meta name="twitter:image" content="https://spontaneous-muffin-553478.netlify.app/share-card.png">
+  <meta name="twitter:image" content="https://spontaneous-muffin-553478.netlify.app/share-icon.jpg">
   
   <link rel="stylesheet" href="index.css">
   <!-- Load inline dataset -->
@@ -197,5 +197,107 @@
 
   <!-- Main App Script -->
   <script src="app.js"></script>
+
+<!-- WeChat Share Configuration -->
+<script>
+(function() {
+  var shareData = {
+    title: '师小联课表 - 盐城师范学院课表查询系统',
+    desc: '盐城师范学院全覆盖课表查询，支持专业-班级精准查询，每周课表与总课表智能切换',
+    link: 'https://spontaneous-muffin-553478.netlify.app/',
+    imgUrl: 'https://spontaneous-muffin-553478.netlify.app/share-icon.jpg'
+  };
+
+  function setShareData() {
+    if (typeof WeixinJSBridge === 'undefined') {
+      if (document.addEventListener) {
+        document.addEventListener('WeixinJSBridgeReady', onBridgeReady, false);
+      } else if (document.attachEvent) {
+        document.attachEvent('WeixinJSBridgeReady', onBridgeReady);
+        document.attachEvent('onWeixinJSBridgeReady', onBridgeReady);
+      }
+    } else {
+      onBridgeReady();
+    }
+  }
+
+  function onBridgeReady() {
+    try {
+      WeixinJSBridge.on('menu:share:appmessage', function(argv) {
+        WeixinJSBridge.invoke('sendAppMessage', {
+          title: shareData.title,
+          desc: shareData.desc,
+          link: shareData.link,
+          img_url: shareData.imgUrl
+        }, function(res) {});
+      });
+
+      WeixinJSBridge.on('menu:share:timeline', function(argv) {
+        WeixinJSBridge.invoke('shareTimeline', {
+          title: shareData.title,
+          link: shareData.link,
+          img_url: shareData.imgUrl
+        }, function(res) {});
+      });
+
+      WeixinJSBridge.on('menu:share:qq', function(argv) {
+        WeixinJSBridge.invoke('shareQQ', {
+          title: shareData.title,
+          desc: shareData.desc,
+          link: shareData.link,
+          img_url: shareData.imgUrl
+        }, function(res) {});
+      });
+
+      WeixinJSBridge.on('menu:share:weiboApp', function(argv) {
+        WeixinJSBridge.invoke('shareWeibo', {
+          title: shareData.title,
+          desc: shareData.desc,
+          link: shareData.link,
+          img_url: shareData.imgUrl
+        }, function(res) {});
+      });
+    } catch (e) {
+      console.log('WeixinJSBridge error:', e);
+    }
+  }
+
+  setShareData();
+})();
+</script>
+
+<!-- WeChat JS-SDK for better compatibility -->
+<script src="https://res.wx.qq.com/open/js/jweixin-1.6.0.js"></script>
+<script>
+wx.config({
+  debug: false,
+  appId: '',
+  timestamp: 0,
+  nonceStr: '',
+  signature: '',
+  jsApiList: ['updateAppMessageShareData', 'updateTimelineShareData']
+});
+
+wx.ready(function() {
+  try {
+    wx.updateAppMessageShareData({
+      title: '师小联课表 - 盐城师范学院课表查询系统',
+      desc: '盐城师范学院全覆盖课表查询，支持专业-班级精准查询，每周课表与总课表智能切换',
+      link: 'https://spontaneous-muffin-553478.netlify.app/',
+      imgUrl: 'https://spontaneous-muffin-553478.netlify.app/share-icon.jpg',
+      success: function() {}
+    });
+
+    wx.updateTimelineShareData({
+      title: '师小联课表 - 盐城师范学院课表查询系统',
+      link: 'https://spontaneous-muffin-553478.netlify.app/',
+      imgUrl: 'https://spontaneous-muffin-553478.netlify.app/share-icon.jpg',
+      success: function() {}
+    });
+  } catch (e) {
+    console.log('wx.ready error:', e);
+  }
+});
+</script>
 </body>
 </html>
